@@ -1,22 +1,43 @@
-import { assert } from "chai";
-import { Validate, Validator } from "../src";
+# @aster-js/validation
 
-describe("Validator", () => {
+Fluent validation library inspired by the fluent validation library from .NET.
 
+## Usage
+
+We will take the following model as a sample:
+
+```ts
 type MyModel = {
     readonly id: number,
     readonly name: string,
     readonly value: any;
 };
 
+```
+
+### Validator declaration
+
+```ts
+import { Validator, Validate } from "@aster-js/validation";
+
 const myModelValidator = Validator.create<MyModel>(builder => {
+
     builder.for("id").must(Validate.toBeNumber, { min: 0 }).withMessage("id must be a number greater than 0");
+
     builder.for("name").must(Validate.toBeString, { minLength: 5, maxLength: 20 }).withMessage("name must have more than 5 chars and less than 20");
+
     builder.for("id").must(Validate.toBeDefined).withMessage("value must be defined");
-});
 
-    it("Should be auto registered in service collection", () => {
-
-        //assert.equal(result, container.services);
-    });
 });
+```
+
+### Validator usage
+
+```ts
+const model = { id: 0, name: "Joe", value: null };
+const validationResult = myModelValidator.validate(model);
+
+if(validationResult.type === "failed") {
+    console.debug(validationResult.errors);
+}
+```
