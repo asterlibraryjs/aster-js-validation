@@ -1,22 +1,24 @@
+import { IExpectation } from "../expectation/iexpectation";
+import { ExpectationBuilder } from "../validator-builder/expectation-builder";
+import { ValidatorBuilder } from "../validator-builder/validator-builder";
+
 import { IIterableValidator, IValidator } from "./ivalidator";
-import { IValidationRule } from "./ivalidator-rule";
 import { SucceedValidationResult, ValidationResult } from "./validation-result";
-import { ValidatorBuilder } from "./validator-builder";
 import { ValidatorGroup } from "./validator-group";
 import { IterableValidator } from "./iterable-validator";
 
 export class Validator<T> implements IValidator<T> {
-    private readonly _rules: readonly IValidationRule<T>[];
+    private readonly _expectations: readonly IExpectation<T>[];
 
     constructor(
-        rules: Iterable<IValidationRule<T>>
+        expectations: Iterable<IExpectation<T>>
     ) {
-        this._rules = [...rules];
+        this._expectations = [...expectations];
     }
 
     async validate(target: T): Promise<ValidationResult> {
         const errors: Record<string, string>[] = [];
-        for (const validator of this._rules) {
+        for (const validator of this._expectations) {
             const result = await validator.run(target);
             if (result.type === "failed") {
                 errors.push(result.errors);
@@ -37,9 +39,11 @@ export class Validator<T> implements IValidator<T> {
         return new IterableValidator<T>(this);
     }
 
-    static create<T>(configure: (builder: ValidatorBuilder<T>) => void): Validator<T> {
+    static create<T>(configure: (expect: <K extends keyof T & string>(property: K) => ExpectationBuilder<T>) => void): Validator<T> {
         const builder = new ValidatorBuilder<T>();
-        configure(builder);
-        return builder.build();
+        configure(<K extends keyof T & string>(key: K) => builder.expect(key));
+
+        const expectations = builder.build();
+        return new Validator(expectations);
     }
 }
