@@ -39,11 +39,20 @@ export class Validator<T> implements IValidator<T> {
         return new IterableValidator<T>(this);
     }
 
-    static create<T>(configure: (expect: <K extends keyof T & string>(property: K) => ExpectationBuilder<T>) => void): Validator<T> {
+    static create<T>(configure: (expect: <K extends keyof T & string>(property?: K) => ExpectationBuilder<T>) => void): Validator<T> {
         const builder = new ValidatorBuilder<T>();
-        configure(<K extends keyof T & string>(key: K) => builder.expect(key));
+        configure(<K extends keyof T & string>(key?: K) => builder.expect(key));
 
         const expectations = builder.build();
         return new Validator(expectations);
+    }
+
+    static createCallback<T>(configure: (expect: <K extends keyof T & string>(property?: K) => ExpectationBuilder<T>) => void): (target: T) => Promise<ValidationResult> {
+        const builder = new ValidatorBuilder<T>();
+        configure(<K extends keyof T & string>(key?: K) => builder.expect(key));
+
+        const expectations = builder.build();
+        const validator = new Validator(expectations);
+        return (target: T) => validator.validate(target)
     }
 }

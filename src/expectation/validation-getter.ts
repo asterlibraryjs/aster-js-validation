@@ -1,7 +1,15 @@
 
-export interface IValidationGetter<T> {
+export interface IValidationGetter<T = any> {
     readonly path: string;
     getValue(target: T): any;
+}
+
+export namespace IValidationGetter {
+
+    export const self: IValidationGetter = {
+        path: ".",
+        getValue: val => val
+    };
 }
 
 export class ValidationPropertyGetter<T, K extends keyof T & string> implements IValidationGetter<T> {

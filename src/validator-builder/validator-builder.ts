@@ -1,18 +1,17 @@
+import { Lookup } from "@aster-js/collections";
 import { IExpectation } from "../expectation/iexpectation";
-import { ValidationPropertyGetter } from "../expectation/validation-getter";
+import { IValidationGetter, ValidationPropertyGetter } from "../expectation/validation-getter";
 
 import { ExpectationBuilder } from "./expectation-builder";
 
 export class ValidatorBuilder<T> {
-    private readonly _builders: Map<string, ExpectationBuilder<T>> = new Map();
+    private readonly _builders: Lookup<IValidationGetter, ExpectationBuilder<T>> = new Lookup(acc => acc.path);
 
-    expect<K extends keyof T & string>(property: K): ExpectationBuilder<T> {
-        if (this._builders.has(property)) throw new Error(`A rule has already been defined for this property`);
-
-        const accessor = new ValidationPropertyGetter<T, K>(property);
+    expect<K extends keyof T & string>(property?: K): ExpectationBuilder<T> {
+        const accessor = property ? new ValidationPropertyGetter<T, K>(property) : IValidationGetter.self;
         const builder = new ExpectationBuilder(accessor);
 
-        this._builders.set(property, builder);
+        this._builders.add(accessor, builder);
         return builder;
     }
 

@@ -26,7 +26,10 @@ export class Expectation<T> implements IExpectation<T>{
                 if (result.type === "failed") {
                     const entries = Object.entries(result.errors)
                         .map(([relativePath, message]) => {
-                            return [`${this._valueAccessor.path}.${relativePath}`, message] as const;
+                            if (this._valueAccessor.path !== IValidationGetter.self.path) {
+                                return [`${this._valueAccessor.path}.${relativePath}`, message] as const;
+                            }
+                            return [relativePath, message] as const;
                         });
                     return FailedValidationResult(entries);
                 }
