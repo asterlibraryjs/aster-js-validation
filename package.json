@@ -1,6 +1,6 @@
 {
   "name": "@aster-js/validation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Aster validation library part of Aster js library",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -27,7 +27,7 @@
   "homepage": "https://github.com/asterlibraryjs/aster-js-validation#readme",
   "license": "ISC",
   "dependencies": {
-    "@aster-js/core": "^1.0.0",
+    "@aster-js/core": "^1.0.1",
     "@aster-js/collections": "^1.0.0",
     "@aster-js/iterators": "^1.0.0",
     "tslib": "^1.11.1"

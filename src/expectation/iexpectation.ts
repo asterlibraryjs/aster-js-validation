@@ -7,11 +7,13 @@ export type ExpectationConditionDelegate<T> = (target: T) => boolean;
 
 export type Validation<T> = DelegateValidation<T> | ValidatorValidation<T>;
 
+export type ValidationFailedDelegate<T> = (target: T, path: string, value: any) => string;
+
 export type DelegateValidation<T> = {
     readonly type: "delegate";
     readonly condition: ExpectationConditionDelegate<T>;
     readonly validator: ValidationDelegate;
-    readonly message: string;
+    readonly onFail: ValidationFailedDelegate<T>;
 }
 
 export type ValidatorValidation<T> = {

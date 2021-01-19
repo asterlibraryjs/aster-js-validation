@@ -3,6 +3,7 @@ import { IExpectation } from "../expectation/iexpectation";
 import { IValidationGetter, ValidationPropertyGetter } from "../expectation/validation-getter";
 
 import { ExpectationBuilder } from "./expectation-builder";
+import "./extensions";
 
 export class ValidatorBuilder<T> {
     private readonly _builders: Lookup<IValidationGetter, ExpectationBuilder<T>> = new Lookup(acc => acc.path);
