@@ -1,12 +1,13 @@
-import { IValidationRule, Validation } from "./ivalidator-rule";
-import { IValidationGetter } from "./validation-getter";
-import { FailedValidationResult, SucceedValidationResult, ValidationResult } from "./validation-result";
+import { FailedValidationResult, SucceedValidationResult, ValidationResult } from "../validator/validation-result";
 
-export class ValidationRule<T, V> implements IValidationRule<T>{
+import { IExpectation, Validation } from "./iexpectation";
+import { IValidationGetter } from "./validation-getter";
+
+export class Expectation<T> implements IExpectation<T>{
 
     constructor(
-        private readonly _valueAccessor: IValidationGetter<T, V>,
-        private readonly _validations: Validation<T, V>[]
+        private readonly _valueAccessor: IValidationGetter<T>,
+        private readonly _validations: Validation<T>[]
     ) { }
 
     async run(target: T): Promise<ValidationResult> {
@@ -25,7 +26,10 @@ export class ValidationRule<T, V> implements IValidationRule<T>{
                 if (result.type === "failed") {
                     const entries = Object.entries(result.errors)
                         .map(([relativePath, message]) => {
-                            return [`${this._valueAccessor.path}.${relativePath}`, message] as const;
+                            if (this._valueAccessor.path !== IValidationGetter.self.path) {
+                                return [`${this._valueAccessor.path}.${relativePath}`, message] as const;
+                            }
+                            return [relativePath, message] as const;
                         });
                     return FailedValidationResult(entries);
                 }

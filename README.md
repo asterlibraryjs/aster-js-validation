@@ -20,13 +20,13 @@ type MyModel = {
 ```ts
 import { Validator, Validate } from "@aster-js/validation";
 
-const myModelValidator = Validator.create<MyModel>(builder => {
+const myModelValidator = Validator.create<MyModel>(expect => {
 
-    builder.for("id").must(Validate.toBeNumber, { min: 0 }).withMessage("id must be a number greater than 0");
+    expect("id").toBeNumber({ min: 0 }).orFail("id must be a number greater than 0");
 
-    builder.for("name").must(Validate.toBeString, { minLength: 5, maxLength: 20 }).withMessage("name must have more than 5 chars and less than 20");
+    expect("name").toBeString({ minLength: 5, maxLength: 20 }).orFail("name must have more than 5 chars and less than 20");
 
-    builder.for("id").must(Validate.toBeDefined).withMessage("value must be defined");
+    expect("value").toBeDefined().orFail("value must be defined");
 
 });
 ```
