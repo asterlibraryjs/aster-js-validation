@@ -70,7 +70,7 @@ describe("Validator", () => {
 
     it("Should fail validate a model using a self validation on conditional state", async () => {
         const callback = Validator.createCallback<MyModel>(expect => {
-            expect().must(myModelValidator).when(t => t.value !== null);
+            expect().use(myModelValidator).when(t => t.value !== null);
         });
 
         const result = await callback({ id: 0, name: "", value: 1 });
