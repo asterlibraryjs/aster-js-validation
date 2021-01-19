@@ -1,6 +1,5 @@
 import { assert } from "chai";
-import { Validator } from "../src";
-import { SucceedValidationResult } from "../src/validator/validation-result";
+import { Validator, SucceedValidationResult, ValidationResult } from "../src";
 
 describe("Validator", () => {
 
@@ -80,5 +79,55 @@ describe("Validator", () => {
                 name: "name must have more than 6 chars and less than 20"
             }
         });
+    });
+
+    it("Should succeed to validate a model with conditional extension", async () => {
+        const callback = Validator.createCallback<MyModel>(expect => {
+            expect("id").toBeNumber().whenDefined().orFail("id must be a valid string");
+        });
+
+        const result = await callback({ id: <any>void 0, name: "", value: 1 });
+        assert.deepEqual(result, SucceedValidationResult);
+    });
+
+    it("Should match with a custom regex", async () => {
+        const callback = Validator.createCallback<MyModel>(expect => {
+            expect("name").toMatch(/^[\w]+$/).orFail("Invalid!");
+        });
+
+        const result = await callback({ id: 0, name: "bob", value: 1 });
+        assert.deepEqual(result, SucceedValidationResult);
+    });
+
+    it("Should throw the default error with a custom regex when no fail is set", async () => {
+        const callback = Validator.createCallback<MyModel>(expect => {
+            expect("name").toMatch(/^[\w]+$/);
+        });
+
+        const result = await callback({ id: 0, name: "bob*", value: 1 });
+        assert.deepEqual(result, {
+            type: "failed", errors: {
+                name: `Invalid value for "name": "bob*"`
+            }
+        });
+    });
+
+    it("Should throw the default error with a custom regex when no fail is set", async () => {
+        const callback = Validator.createCallback<MyModel>(expect => {
+            expect("name").toMatch(/^[\w]+$/).orFail((_, p) => { throw new Error(`Bad ${p}!`) });
+        });
+
+        let result: ValidationResult | undefined;
+        let error: any;
+
+        try {
+            result = await callback({ id: 0, name: "bob*", value: 1 });
+        }
+        catch (err) {
+            error= err
+        }
+        assert.isUndefined(result);
+        assert.isDefined(error);
+        assert.equal(error.message, "Bad name!");
     });
 });

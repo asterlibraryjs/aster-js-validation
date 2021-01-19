@@ -1,25 +1,25 @@
 import { asserts } from "@aster-js/core";
 
 import { Expectation } from "../expectation/expectation";
-import { ExpectationConditionDelegate, IExpectation, Validation } from "../expectation/iexpectation";
+import { ExpectationConditionDelegate, IExpectation, Validation, ValidationFailedDelegate } from "../expectation/iexpectation";
 import { ValidationDelegate } from "../expectation/validation-delegate";
 import { IValidationGetter } from "../expectation/validation-getter";
 
 import { IValidator } from "../validator/ivalidator";
 
-import { ExpectationBuilderExtensions } from "./expectation-builder-extensions";
-
-export class ExpectationBuilder<T> extends ExpectationBuilderExtensions<T> {
+export class ExpectationBuilder<T> {
     private readonly _validations: Validation<T>[] = [];
     private _validator?: ValidationDelegate | IValidator<any>;
     private _condition?: ExpectationConditionDelegate<T>;
-    private _message?: string;
+    private _onFail?: ValidationFailedDelegate<T>;
 
     get and(): this { return this.flushPendingValidator(); }
 
+    get valueAccessor(): IValidationGetter<T> { return this._valueAccessor; }
+
     constructor(
         private readonly _valueAccessor: IValidationGetter<T>
-    ) { super();}
+    ) { }
 
     use(validation: IValidator<any>): this {
         this.setValidation(validation);
@@ -43,10 +43,11 @@ export class ExpectationBuilder<T> extends ExpectationBuilderExtensions<T> {
         return this;
     }
 
-    orFail(message: string): this {
+    orFail(message: string): this;
+    orFail(callback: ValidationFailedDelegate<T>): this;
+    orFail(callbackOrMessage: string | ValidationFailedDelegate<T>): this {
         asserts.defined(this._validator, "Define a validation using `.must()` before adding a message");
-
-        this._message = message;
+        this._onFail = typeof callbackOrMessage === "string" ? () => callbackOrMessage : callbackOrMessage;
         return this;
     }
 
@@ -61,9 +62,8 @@ export class ExpectationBuilder<T> extends ExpectationBuilderExtensions<T> {
             const condition = this._condition ?? (() => true);
 
             if (typeof validator === "function") {
-                asserts.defined(this._message, "You must define a message for each expectations that doesn't use a custom validator");
-
-                this._validations.push({ type: "delegate", validator, condition, message: this._message });
+                const onFail = this._onFail ?? ((_, path, value) => `Invalid value for "${path}": ${JSON.stringify(value)}`);
+                this._validations.push({ type: "delegate", validator, condition, onFail });
             }
             else {
                 this._validations.push({ type: "validator", validator, condition });
@@ -71,7 +71,7 @@ export class ExpectationBuilder<T> extends ExpectationBuilderExtensions<T> {
         }
         delete this._validator;
         delete this._condition;
-        delete this._message;
+        delete this._onFail;
 
         return this;
     }

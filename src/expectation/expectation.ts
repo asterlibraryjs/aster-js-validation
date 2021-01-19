@@ -18,7 +18,9 @@ export class Expectation<T> implements IExpectation<T>{
 
             if (validation.type === "delegate") {
                 if (!(await validation.validator(value))) {
-                    return FailedValidationResult([[this._valueAccessor.path, validation.message]]);
+                    const path = this._valueAccessor.path;
+                    const message = validation.onFail(target, path, value);
+                    return FailedValidationResult([[path, message]]);
                 }
             }
             else {
