@@ -29,6 +29,14 @@ export class ToBeStringExtensions<T> {
         return this.must(validation);
     }
 
+    toBeAlphaNum(this: ExpectationBuilder<T>, options: StringExpectations = {}): ExpectationBuilder<T> {
+        const validation = ValidationDelegate.create(function* () {
+            yield* getValidations(options);
+            yield (value: string) => /^[a-z0-9]+$/i.test(value)
+        });
+        return this.must(validation);
+    }
+
     toBeStringDate(this: ExpectationBuilder<T>): ExpectationBuilder<T> {
         const validation = ValidationDelegate.create(function* () {
             yield (value: unknown) => typeof value === "string";
@@ -62,9 +70,5 @@ export class ToBeStringExtensions<T> {
 
     toBeMailAddress(this: ExpectationBuilder<T>): ExpectationBuilder<T> {
         return this.toMatch(/^([\w\-\.]){1,}\@([\w\-\.]){1,}\.([a-z]){2,4}$/i);
-    }
-
-    toBeAlphaNum(this: ExpectationBuilder<T>): ExpectationBuilder<T> {
-        return this.toMatch(/^[a-z0-9]+$/i);
     }
 }
