@@ -1,4 +1,4 @@
-# @aster-js/validation
+# @aster-js/validation ![Node.js Package](https://github.com/asterlibraryjs/aster-js-validation/workflows/Node.js%20Package/badge.svg)
 
 Fluent validation library inspired by the fluent validation library from .NET.
 
