@@ -20,12 +20,20 @@ export class ToBeBasicsExtensions<T> {
         return this.must((value: unknown) => typeof value === "undefined");
     }
 
+    toBeEqual(this: ExpectationBuilder<T>, expected: any): ExpectationBuilder<T> {
+        return this.must((value: unknown) => value === expected);
+    }
+
+    toNotBeEqual(this: ExpectationBuilder<T>, notExpected: any): ExpectationBuilder<T> {
+        return this.must((value: unknown) => value !== notExpected);
+    }
+
     toBeNull(this: ExpectationBuilder<T>): ExpectationBuilder<T> {
-        return this.must((value: unknown) => value === null);
+        return this.toBeEqual(null);
     }
 
     toNotBeNull(this: ExpectationBuilder<T>): ExpectationBuilder<T> {
-        return this.must((value: unknown) => value !== null);
+        return this.toNotBeEqual(null);
     }
 
     toBeValidTypeOrNull(this: ExpectationBuilder<T>, type: TypeOfResult): ExpectationBuilder<T> {
