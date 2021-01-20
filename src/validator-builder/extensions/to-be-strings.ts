@@ -4,13 +4,13 @@ import { ExpectationBuilder } from "../expectation-builder";
 export type StringExpectations = { minLength?: number, maxLength?: number };
 
 function* getValidations({ minLength, maxLength }: StringExpectations): Iterable<ValidationDelegate> {
-    yield (value: any) => typeof value === "string";
+    yield (value: unknown) => typeof value === "string";
 
     if (typeof minLength !== "undefined") {
-        yield (value: any[]) => value.length >= minLength;
+        yield (value: string) => value.length >= minLength;
     }
     if (typeof maxLength !== "undefined") {
-        yield (value: any[]) => value.length <= maxLength;
+        yield (value: string) => value.length <= maxLength;
     }
 }
 
@@ -61,6 +61,10 @@ export class ToBeStringExtensions<T> {
     }
 
     toBeMailAddress(this: ExpectationBuilder<T>): ExpectationBuilder<T> {
-        return this.toMatch(/^([\w\-\.]){1,}\@([\w\-\.]){1,}\.([A-Za-z]){2,4}$/);
+        return this.toMatch(/^([\w\-\.]){1,}\@([\w\-\.]){1,}\.([a-z]){2,4}$/i);
+    }
+
+    toBeAlphaNum(this: ExpectationBuilder<T>): ExpectationBuilder<T> {
+        return this.toMatch(/^[a-z0-9]+$/i);
     }
 }

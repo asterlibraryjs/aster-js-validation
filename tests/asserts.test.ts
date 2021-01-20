@@ -124,10 +124,28 @@ describe("Validator", () => {
             result = await callback({ id: 0, name: "bob*", value: 1 });
         }
         catch (err) {
-            error= err
+            error = err
         }
         assert.isUndefined(result);
         assert.isDefined(error);
         assert.equal(error.message, "Bad name!");
+    });
+
+    it("Should validate inclusive min values", async () => {
+        const callback = Validator.createCallback<MyModel>(expect => {
+            expect("id").toBeNumber({ min: 0, includeMin: true });
+        });
+
+        const result = await callback({ id: 0, name: "bob", value: 1 });
+        assert.deepEqual(result, SucceedValidationResult);
+    });
+
+    it("Should validate inclusive max values", async () => {
+        const callback = Validator.createCallback<MyModel>(expect => {
+            expect("id").toBeNumber({ max: 10, includeMax: true });
+        });
+
+        const result = await callback({ id: 10, name: "bob", value: 1 });
+        assert.deepEqual(result, SucceedValidationResult);
     });
 });

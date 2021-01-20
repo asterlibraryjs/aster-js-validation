@@ -1,15 +1,12 @@
 {
   "name": "@aster-js/validation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Aster validation library part of Aster js library",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
+    "prepublish": "npm run build",
     "build": "tsc",
-    "bundle": "rollup -c",
-    "build-bundle": "tsc && rollup -c",
-    "run-test": "karma start",
-    "build-test": "tsc --project tests/tsconfig.json",
     "test": "tsc --project tests/tsconfig.json  && rollup -c && karma start"
   },
   "directories": {
