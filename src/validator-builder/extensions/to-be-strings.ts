@@ -21,7 +21,7 @@ export class ToBeStringExtensions<T> {
         return this.must(validation);
     }
 
-    toBeNoEmptyOrWhiteSpaces(this: ExpectationBuilder<T>, options: StringExpectations = {}): ExpectationBuilder<T> {
+    toNotBeEmptyOrWhiteSpaces(this: ExpectationBuilder<T>, options: StringExpectations = {}): ExpectationBuilder<T> {
         const validation = ValidationDelegate.create(function* () {
             yield* getValidations(options);
             yield (value: string) => Boolean(value.trim());
@@ -33,6 +33,14 @@ export class ToBeStringExtensions<T> {
         const validation = ValidationDelegate.create(function* () {
             yield* getValidations(options);
             yield (value: string) => /^[a-z0-9]+$/i.test(value)
+        });
+        return this.must(validation);
+    }
+
+    toBeAlpha(this: ExpectationBuilder<T>, options: StringExpectations = {}): ExpectationBuilder<T> {
+        const validation = ValidationDelegate.create(function* () {
+            yield* getValidations(options);
+            yield (value: string) => /^[a-z]+$/i.test(value)
         });
         return this.must(validation);
     }
